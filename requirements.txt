@@ -1,0 +1,5 @@
+numpy
+pandas
+google-cloud-bigquery
+db-dtypes # for GBQ
+tornado

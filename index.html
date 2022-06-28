@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Platypi: PyPI Download Analysis</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.2.min.js"></script>
+    <py-env>
+        - numpy
+        - pandas
+        - python-dateutil
+        - pytz
+        - bokeh
+    </py-env>
+</head>
+<style>
+    #packagename {
+        border: 3px solid;
+    }
+</style>
+<body>
+    <h1>Platypi: PyPI Download Analysis</h1>
+    <br>
+    <div>Enter a package to analyze: </div>
+    <input type="text" id="packagename"/>
+    <button id="submit-button" type="submit" pys-onClick="query_and_render">Query</button>
+    <div id="bar_chart"></div>
+    <py-script>
+        import json
+        import pandas as pd
+        from io import StringIO
+        from js import Bokeh, JSON, XMLHttpRequest
+        from bokeh.embed import json_item
+        from bokeh.plotting import figure
+        from bokeh.resources import CDN
+        from bokeh.models import ColumnDataSource
+        def query_and_render(*args, **kwargs):
+            packagename = Element("packagename").element.value
+            # Pyodide doesn't have built-in support for CORS
+            # Workaround it
+            # https://github.com/pyodide/pyodide/issues/2659#issuecomment-1147533310
+            url = f"https://platypi.herokuapp.com/query?query_type=package_info&package_name={packagename}"
+            req = XMLHttpRequest.new()
+            req.open("GET", url, False)
+            req.send(None)
+            df = pd.read_json(StringIO(req.response))
+            df = df.sort_values("download_counts", ascending=False, ignore_index=True)
+            source = ColumnDataSource(df.head(10)) # Take the top 10 most downloaded files
+            p = figure(title=f"Top 10 downloaded files for package {packagename}", y_range=df.head(10)["file"].values)
+            p.hbar(y="file", right="download_counts", source=source)
+            p_json = json.dumps(json_item(p, "bar_chart"))
+            Bokeh.embed.embed_item(JSON.parse(p_json))
+    </py-script>
+</body>
+</html>
