@@ -10,4 +10,5 @@ for, and the kinds of platforms to drop.
 Currently, a prototype (hosted on [Kaggle](https://www.kaggle.com/code/lithomas1/pypi-download-analysis)),
 with all the stats to be scraped from the [Google BigQuery dataset](https://console.cloud.google.com/marketplace/product/gcp-public-data-pypi/pypi?_ga=2.229813535.-2089851614.1652743720) is in progress.
 
-Eventually, the hope is to consolidate these stats into a webpage.
+A website with these stats is also in progress and can be found at
+https://lithomas1.github.io/platypi
