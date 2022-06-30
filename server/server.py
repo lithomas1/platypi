@@ -11,8 +11,8 @@ port = int(os.getenv("PORT", 8888))
 
 # Dict mapping query_type to the file containing the queries
 query_types = {
-    "packages_today": "heroku/queries/packages_today.sql",
-    "package_info": "heroku/queries/package_info.sql",
+    "packages_today": "server/queries/packages_today.sql",
+    "package_info": "server/queries/package_info.sql",
 }
 
 
@@ -23,7 +23,7 @@ class QueryHandler(tornado.web.RequestHandler):
         # TODO: restrict origin?
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
-        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 
     def load_template(self, path, **kwargs):
         with open(path, "r") as file:

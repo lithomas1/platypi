@@ -1,1 +1,1 @@
-web: python heroku/server.py
+web: python server/server.py
