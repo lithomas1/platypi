@@ -8,14 +8,8 @@ from bokeh.models import ColumnDataSource
 from util import make_request
 
 
-def query_and_render(*args, **kwargs):
+def plot_package_info(*args, **kwargs):
     packagename = Element("packagename").element.value
-    # https://github.com/pyodide/pyodide/issues/2659#issuecomment-1147533310
-    # url = f"https://platypi.herokuapp.com/query?query_type=package_info&package_name={packagename}"
-    # req = XMLHttpRequest.new()
-    # req.open("GET", url, False)
-    # req.send(None)
-    # df = pd.read_json(StringIO(req.response))
     df = make_request("package_info", package_name=packagename)
     df = df.sort_values("download_counts", ascending=False, ignore_index=True)
     source = ColumnDataSource(df.head(10))  # Take the top 10 most downloaded files
@@ -28,4 +22,20 @@ def query_and_render(*args, **kwargs):
     p.sizing_mode = "scale_both"  # autoscale width/height
     p.hbar(y="file", right="download_counts", source=source)
     p_json = json.dumps(json_item(p, "bar_chart"))
+    Bokeh.embed.embed_item(JSON.parse(p_json))
+
+def plot_top_packages(*args, **kwargs):
+    num_top_packages = int(Element("topn").element.value)
+    df = make_request("packages_today")
+    df = df.sort_values("download_counts", ascending=False, ignore_index=True)
+    source = ColumnDataSource(df.head(num_top_packages))  # Take the top n most downloaded files
+    p = figure(
+        title=f"Top {num_top_packages} packages",
+        y_range=df.head(num_top_packages)["project"].values,
+        x_axis_label="Download count",
+        y_axis_label="Package name",
+    )
+    p.sizing_mode = "scale_both"  # autoscale width/height
+    p.hbar(y="project", right="download_counts", source=source)
+    p_json = json.dumps(json_item(p, "charts"))
     Bokeh.embed.embed_item(JSON.parse(p_json))

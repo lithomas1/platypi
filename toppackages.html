@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Platypi: PyPI Download Analysis</title>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <py-env>
+        - numpy
+        - pandas
+        - bokeh
+        - paths:
+            - ./pyscript/util.py
+    </py-env>
+</head>
+<body>
+    <!-- Navbar placeholder div and script -->
+    <div id="navbar"></div>
+    <script>
+        $(function(){
+            $("#navbar").load("html/nav.html");
+        });
+    </script>
+    <div class = "container" id="top-package-query">
+        <div class="row">
+            <div class="d-flex justify-content-center text-center">
+                <h3>
+                    Look up the top 
+                    <input type="text" id="topn"></input> 
+                    packages downloaded today.
+                </h3>
+            </div>
+        </div>
+        <div class="row">
+            <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_top_packages">Query</button>
+        </div>
+        <py-script src="pyscript/callbacks.py"></py-script>
+    </div>
+    <div id="charts"></div>
+</body>
