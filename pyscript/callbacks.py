@@ -5,23 +5,20 @@ from bokeh.embed import json_item
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.models import ColumnDataSource
-from util import make_request
+from bokeh.layouts import layout
+from util import make_request, parse_filename
+from stats import plot_top_downloaded_files, plot_wheel_coverage
 
 
 def plot_package_info(*args, **kwargs):
     packagename = Element("packagename").element.value
     df = make_request("package_info", package_name=packagename)
     df = df.sort_values("download_counts", ascending=False, ignore_index=True)
-    source = ColumnDataSource(df.head(10))  # Take the top 10 most downloaded files
-    p = figure(
-        title=f"Top 10 downloaded files for package {packagename}",
-        y_range=df.head(10)["file"].values,
-        x_axis_label="Download count",
-        y_axis_label="File name",
-    )
-    p.sizing_mode = "scale_both"  # autoscale width/height
-    p.hbar(y="file", right="download_counts", source=source)
-    p_json = json.dumps(json_item(p, "bar_chart"))
+    df[["name", "version", "build_number", "tags", "ftype"]] = df["file"].apply(parse_filename)
+    p1 = plot_top_downloaded_files(df, packagename, 10)
+    p2 = plot_wheel_coverage(df, packagename)
+    p = layout([[p1,p2]], sizing_mode="scale_both")
+    p_json = json.dumps(json_item(p, "charts"))
     Bokeh.embed.embed_item(JSON.parse(p_json))
 
 def plot_top_packages(*args, **kwargs):

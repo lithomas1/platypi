@@ -19,6 +19,7 @@
         - packaging
         - paths:
             - ./pyscript/util.py
+            - ./pyscript/stats.py
     </py-env>
 </head>
 <body>
@@ -32,6 +33,6 @@
     <div>Enter a package to analyze: </div>
     <input type="text" id="packagename" class="form-control" style="text-align: center"/>
     <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_package_info">Query</button>
-    <div id="bar_chart"></div>
+    <div id="charts"></div>
     <py-script src="pyscript/callbacks.py"></py-script>
 </body>
