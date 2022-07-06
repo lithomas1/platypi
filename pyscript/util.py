@@ -9,6 +9,23 @@ from io import StringIO
 from js import XMLHttpRequest
 import pandas as pd
 
+# A dictionary of aliases from old to new platform tags
+# as defined in PEP 600. 
+# https://peps.python.org/pep-0600/#legacy-manylinux-tags
+# We will use this to de-dup in get_tags
+legacy_tag_aliases = {
+    "manylinux1_x86_64": "manylinux_2_5_x86_64",
+    "manylinux1_i686": "manylinux_2_5_i686",
+    "manylinux2010_x86_64": "manylinux_2_12_x86_64",
+    "manylinux2010_i686": "manylinux_2_12_i686",
+    "manylinux2014_x86_64": "manylinux_2_17_x86_64",
+    "manylinux2014_i686": "manylinux_2_17_i686",
+    "manylinux2014_aarch64": "manylinux_2_17_aarch64",
+    "manylinux2014_armv7l": "manylinux_2_17_armv7l",
+    "manylinux2014_ppc64": "manylinux_2_17_ppc64",
+    "manylinux2014_ppc64le": "manylinux_2_17_ppc64le",
+    "manylinux2014_s390x": "manylinux_2_17_s390x"
+}
 
 def make_request(request_type, **kwargs):
     # Pyodide doesn't have built-in support for CORS
@@ -49,10 +66,23 @@ def get_tags(tags):
         for tag in list(tags):
             interpreters.add(tag.interpreter)
             abis.add(tag.abi)
-            platforms.add(tag.platform)
-
-    interpreters = frozenset(interpreters)
-    abis = frozenset(abis)
-    platforms = frozenset(platforms)
-
+            # Get tag alias if exists, otherwise use current tag platform
+            platforms.add(legacy_tag_aliases.get(tag.platform, tag.platform))
+        
+        # Can still have multiple interpreters, e.g. wheel w/ Python Limited API can
+        # support multiple Python interpreter versions
+        interpreters = tuple(interpreters)
+        abis = tuple(abis)
+        platforms = str(platforms.pop()) # There should only be one unique platform tag now
+        
+        # Flatten if possible
+        if len(interpreters) == 1:
+            interpreters = interpreters[0]
+        if len(abis) == 1:
+            abis = abis[0]
+    else:
+        interpreters = None
+        abis = None
+        platforms = None
+        
     return pd.Series([interpreters, abis, platforms])

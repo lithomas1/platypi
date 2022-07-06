@@ -6,18 +6,21 @@ from bokeh.plotting import figure
 from bokeh.resources import CDN
 from bokeh.models import ColumnDataSource
 from bokeh.layouts import layout
-from util import make_request, parse_filename
-from stats import plot_top_downloaded_files, plot_wheel_coverage
+from util import make_request, parse_filename, get_tags
+from stats import plot_top_downloaded_files, plot_wheel_coverage, plot_platforms
 
 
 def plot_package_info(*args, **kwargs):
     packagename = Element("packagename").element.value
+    n = 10 # TODO: Let user configure?
     df = make_request("package_info", package_name=packagename)
     df = df.sort_values("download_counts", ascending=False, ignore_index=True)
     df[["name", "version", "build_number", "tags", "ftype"]] = df["file"].apply(parse_filename)
-    p1 = plot_top_downloaded_files(df, packagename, 10)
+    df[["pytag", "abitag", "platformtag"]] = df["tags"].apply(get_tags)
+    p1 = plot_top_downloaded_files(df, packagename, n)
     p2 = plot_wheel_coverage(df, packagename)
-    p = layout([[p1,p2]], sizing_mode="scale_both")
+    p3 = plot_platforms(df, packagename, n)
+    p = layout([[p1,p2], [p3]], sizing_mode="scale_both")
     p_json = json.dumps(json_item(p, "charts"))
     Bokeh.embed.embed_item(JSON.parse(p_json))
 
