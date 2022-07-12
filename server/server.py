@@ -1,11 +1,11 @@
-import tornado.ioloop
-import tornado.web
-import tornado.gen
-from string import Template
-from query_gbq import init_client, init_dataset, execute_query
-
 # Heroku gives us the port to listen on
 import os
+from string import Template
+
+import tornado.gen
+import tornado.ioloop
+import tornado.web
+from query_gbq import execute_query, init_client, init_dataset
 
 port = int(os.getenv("PORT", 8888))
 
