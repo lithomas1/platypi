@@ -1,16 +1,14 @@
-from packaging.utils import (
-    parse_wheel_filename,
-    parse_sdist_filename,
-    InvalidWheelFilename,
-    InvalidSdistFilename,
-    Version,
-)
 from io import StringIO
-from js import XMLHttpRequest
+from math import pi
+
 import pandas as pd
+from js import XMLHttpRequest
+from packaging.utils import (InvalidSdistFilename, InvalidWheelFilename,
+                             Version, parse_sdist_filename,
+                             parse_wheel_filename)
 
 # A dictionary of aliases from old to new platform tags
-# as defined in PEP 600. 
+# as defined in PEP 600.
 # https://peps.python.org/pep-0600/#legacy-manylinux-tags
 # We will use this to de-dup in get_tags
 legacy_tag_aliases = {
@@ -24,8 +22,9 @@ legacy_tag_aliases = {
     "manylinux2014_armv7l": "manylinux_2_17_armv7l",
     "manylinux2014_ppc64": "manylinux_2_17_ppc64",
     "manylinux2014_ppc64le": "manylinux_2_17_ppc64le",
-    "manylinux2014_s390x": "manylinux_2_17_s390x"
+    "manylinux2014_s390x": "manylinux_2_17_s390x",
 }
+
 
 def make_request(request_type, **kwargs):
     # Pyodide doesn't have built-in support for CORS
@@ -68,13 +67,15 @@ def get_tags(tags):
             abis.add(tag.abi)
             # Get tag alias if exists, otherwise use current tag platform
             platforms.add(legacy_tag_aliases.get(tag.platform, tag.platform))
-        
+
         # Can still have multiple interpreters, e.g. wheel w/ Python Limited API can
         # support multiple Python interpreter versions
         interpreters = tuple(interpreters)
         abis = tuple(abis)
-        platforms = str(platforms.pop()) # There should only be one unique platform tag now
-        
+        platforms = str(
+            platforms.pop()
+        )  # There should only be one unique platform tag now
+
         # Flatten if possible
         if len(interpreters) == 1:
             interpreters = interpreters[0]
@@ -84,5 +85,10 @@ def get_tags(tags):
         interpreters = None
         abis = None
         platforms = None
-        
+
     return pd.Series([interpreters, abis, platforms])
+
+
+def calculate_pie_chart_angle(data: pd.DataFrame, count_col: str) -> pd.DataFrame:
+    data["angle"] = data[count_col] / data[count_col].sum() * 2 * pi
+    return data

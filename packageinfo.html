@@ -5,6 +5,7 @@
     <title>Platypi: PyPI Download Analysis</title>
     <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.2.min.js"></script>
@@ -35,4 +36,15 @@
     <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_package_info">Query</button>
     <div id="charts"></div>
     <py-script src="pyscript/callbacks.py"></py-script>
+    <div id="versionSelector" style="visibility: hidden">
+        Select a version to analyze further:
+        <button class = "btn btn-secondary dropdown-toggle" type="button" id="versionSelectorDropDownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Select version
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="versionDropDownMenu">
+        </div>
+    </div>
+    <template id="versionDropDownTemplate">
+        <a class="dropdown-item" href="#"></a>
+    </template>
 </body>
