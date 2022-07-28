@@ -35,16 +35,15 @@
     <input type="text" id="packagename" class="form-control" style="text-align: center"/>
     <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_package_info">Query</button>
     <div id="charts"></div>
-    <py-script src="pyscript/callbacks.py"></py-script>
     <div id="versionSelector" style="visibility: hidden">
-        Select a version to analyze further:
-        <button class = "btn btn-secondary dropdown-toggle" type="button" id="versionSelectorDropDownBtn" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Select version
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="versionDropDownMenu">
-        </div>
+        <select class="form-select" id="versionDropDownMenu" aria-label="Select a version">
+            <option selected>Select a version to analyze further:</option>
+        </select>
+        <button id="version-submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_version_package_info">Query</button>
+        <div id="version_charts"></div>
     </div>
     <template id="versionDropDownTemplate">
-        <a class="dropdown-item" href="#"></a>
+        <option>Dummy option</option>
     </template>
+    <py-script src="pyscript/callbacks.py"></py-script>
 </body>
