@@ -10,6 +10,7 @@ from js import JSON, Bokeh
 from stats import (plot_platforms, plot_top_downloaded_files, plot_versions,
                    plot_wheel_coverage)
 from util import get_tags, make_request, parse_filename
+from packaging.version import Version
 
 
 def plot_package_info(*args, **kwargs):
@@ -40,14 +41,39 @@ def plot_package_info(*args, **kwargs):
 
     versions = df["version"].astype(str).unique()
     dropdown = Element("versionDropDownMenu")
-    dropdown_option_template = Element("versionDropDownTemplate").select(".dropdown-item", from_content=True)
+    dropdown_option_template = Element("versionDropDownTemplate").select("option", from_content=True)
     for version in versions:
         dropdown_option = dropdown_option_template.clone(version, to=dropdown)
         dropdown_option.element.innerText = version
+        dropdown_option.element.setAttribute("value", version)
         dropdown.element.appendChild(dropdown_option.element)
     # show dropdown
     Element("versionSelector").element.style.visibility = "visible"
+    df.to_json("package-info.json") # This will write to browser in-memory virtual file system
 
+def plot_version_package_info(*args, **kwargs):
+    # TODO: we should store this value instead of hacking like this
+    packagename = Element("packagename").element.value
+    n = 10  # TODO: Let user configure?
+    df = pd.read_json("package-info.json")
+    print(df)
+    version = Element("versionDropDownMenu").element.value
+    df = df[df["version"] == version]
+    print(df)
+    p1 = plot_top_downloaded_files(df, packagename, n)
+    p2 = plot_wheel_coverage(df, packagename)
+    p3 = plot_platforms(df, packagename, n)
+    #p4 = plot_versions(df, packagename, n)
+    p = layout(
+        column(
+            Div(text=f"<h5>Stats for version {version}</h5>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
+            row([p1, p2]),
+            row(p3),
+        ),
+        sizing_mode="scale_both",
+    )
+    p_json = json.dumps(json_item(p, "version_charts"))
+    Bokeh.embed.embed_item(JSON.parse(p_json))
 
 def plot_top_packages(*args, **kwargs):
     num_top_packages = int(Element("topn").element.value)
