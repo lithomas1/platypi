@@ -2,10 +2,10 @@ from io import StringIO
 from math import pi
 
 import pandas as pd
-from js import XMLHttpRequest
 from packaging.utils import (InvalidSdistFilename, InvalidWheelFilename,
                              Version, parse_sdist_filename,
                              parse_wheel_filename)
+from pyodide.http import pyfetch
 
 # A dictionary of aliases from old to new platform tags
 # as defined in PEP 600.
@@ -26,16 +26,12 @@ legacy_tag_aliases = {
 }
 
 
-def make_request(request_type, **kwargs):
-    # Pyodide doesn't have built-in support for CORS
-    # Workaround it
-    url = f"https://platypi.herokuapp.com/query?query_type={request_type}"  # &package_name={packagename}"
+async def make_request(request_type, **kwargs):
+    url = f"https://platypi.herokuapp.com/query?query_type={request_type}"
     for key, value in kwargs.items():
         url += f"&{key}={value}"
-    req = XMLHttpRequest.new()
-    req.open("GET", url, False)
-    req.send(None)
-    return pd.read_json(StringIO(req.response))
+    req = await pyfetch(url)
+    return pd.read_json(await req.string())
 
 
 def parse_filename(file):

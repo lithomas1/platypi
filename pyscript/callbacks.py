@@ -12,16 +12,32 @@ from stats import (plot_platforms, plot_top_downloaded_files, plot_versions,
 from util import get_tags, make_request, parse_filename
 from packaging.version import Version
 
+import asyncio
 
-def plot_package_info(*args, **kwargs):
+
+async def plot_package_info(*args, **kwargs):
     packagename = Element("packagename").element.value
     n = 10  # TODO: Let user configure?
-    df = make_request("package_info", package_name=packagename)
+    # Loading screen
+    loading_spinner_div = """
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Waiting for PyPI GBQ Dataset...</span>
+    </div>
+    <div id="loading-text">Waiting for PyPI GBQ Dataset...</div>
+    """
+    charts_elem = Element("charts")
+    charts_elem.add_class("d-flex")
+    charts_elem.add_class("flex-column")
+    charts_elem.add_class("align-items-center")
+    Element("charts").write(loading_spinner_div)
+    df = await make_request("package_info", package_name=packagename)
+    Element("loading-text").write("Analyzing data")
     df = df.sort_values("download_counts", ascending=False, ignore_index=True)
     df[["name", "version", "build_number", "tags", "ftype"]] = df["file"].apply(
         parse_filename
     )
     df[["pytag", "abitag", "platformtag"]] = df["tags"].apply(get_tags)
+    Element("loading-text").write("Plotting data")
     p1 = plot_top_downloaded_files(df, packagename, n)
     p2 = plot_wheel_coverage(df, packagename)
     p3 = plot_platforms(df, packagename, n)
@@ -37,6 +53,7 @@ def plot_package_info(*args, **kwargs):
         sizing_mode="scale_both",
     )
     p_json = json.dumps(json_item(p, "charts"))
+    Element("charts").clear()
     Bokeh.embed.embed_item(JSON.parse(p_json))
 
     versions = df["version"].astype(str).unique()
@@ -56,14 +73,11 @@ def plot_version_package_info(*args, **kwargs):
     packagename = Element("packagename").element.value
     n = 10  # TODO: Let user configure?
     df = pd.read_json("package-info.json")
-    print(df)
     version = Element("versionDropDownMenu").element.value
     df = df[df["version"] == version]
-    print(df)
     p1 = plot_top_downloaded_files(df, packagename, n)
     p2 = plot_wheel_coverage(df, packagename)
     p3 = plot_platforms(df, packagename, n)
-    #p4 = plot_versions(df, packagename, n)
     p = layout(
         column(
             Div(text=f"<h5>Stats for version {version}</h5>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
