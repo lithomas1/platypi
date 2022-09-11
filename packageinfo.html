@@ -31,9 +31,13 @@
             $("#navbar").load("html/nav.html");
         });
     </script>
-    <div>Enter a package to analyze: </div>
-    <input type="text" id="packagename" class="form-control" style="text-align: center"/>
-    <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_package_info">Query</button>
+    <div class="m-2">Enter a package to analyze: </div>
+    <div class="m-2">
+        <input type="text" id="packagename" class="form-control" style="text-align: center"/>
+    </div>
+    <div class="m-2">
+        <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_package_info">Query</button>
+    </div>
     <div id="charts"></div>
     <div id="versionSelector" style="visibility: hidden">
         <select class="form-select" id="versionDropDownMenu" aria-label="Select a version">

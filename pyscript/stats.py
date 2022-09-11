@@ -25,7 +25,7 @@ def plot_wheel_coverage(data: DataFrame, packagename: str) -> Figure:
     # Manually calculate pie chart angles since bokeh doesn't do that
     # for us
     ftype_counts = calculate_pie_chart_angle(ftype_counts, "download_counts")
-    ftype_counts["color"] = category20c[len(ftype_counts)]
+    ftype_counts["color"] = list(category20c[:len(ftype_counts)])
     p = figure(title="Wheel coverage", tooltips="@ftype: @download_counts")
     p.wedge(
         x=0,
@@ -65,7 +65,7 @@ def plot_versions(data: DataFrame, packagename: str, n: int) -> Figure:
     topn_versions["other"] = grouped_version_stats[n:].sum()
     topn_versions = topn_versions.reset_index()
     topn_versions = calculate_pie_chart_angle(topn_versions, "download_counts")
-    topn_versions["color"] = category20c[len(topn_versions)]
+    topn_versions["color"] = list(category20c[:len(topn_versions)])
     p = figure(
         title=f"Top {n} downloaded versions for package {packagename}",
         tooltips="@version: @download_counts",
