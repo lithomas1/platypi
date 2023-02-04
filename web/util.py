@@ -6,6 +6,11 @@ from packaging.utils import (InvalidSdistFilename, InvalidWheelFilename,
                              Version, parse_sdist_filename,
                              parse_wheel_filename)
 from pyodide.http import pyfetch
+from pyscript import Element
+
+# URL that the Google Cloud Function that will make the calls to BigQuery
+# is located at
+gcf_url = "https://process-pypi-query-74hlg3dilq-uc.a.run.app/"
 
 # A dictionary of aliases from old to new platform tags
 # as defined in PEP 600.
@@ -25,9 +30,24 @@ legacy_tag_aliases = {
     "manylinux2014_s390x": "manylinux_2_17_s390x",
 }
 
+def generate_loading_spinner(elem_id, text):
+    # Loading screen
+    loading_spinner_div = f"""
+    <div id="spinner" class="spinner-border" role="status">
+        <!-- TODO: Update the accessibility text too -->
+        <span class="visually-hidden">{text}</span>
+    </div>
+    <div id="loading-text">{text}</div>
+    """
+    Element(elem_id).clear()
+    Element(elem_id).element.innerHTML = loading_spinner_div
+
+def update_spinner_text(elem_id, text):
+    Element(elem_id).write(text)
+
 
 async def make_request(request_type, **kwargs):
-    url = f"https://process-pypi-query-74hlg3dilq-uc.a.run.app/query?query_type={request_type}"
+    url = f"{gcf_url}/query?query_type={request_type}"
     for key, value in kwargs.items():
         url += f"&{key}={value}"
     req = await pyfetch(url)

@@ -8,3 +8,11 @@ This tool is meant to supplement other websites that track PyPI stats such as [P
 by providing more fine-grained statistics about the platforms and Python versions packages are downloaded on,
 to help guide package maintainers in making decisions on the kinds of platforms to support and provide wheels
 for, and the kinds of platforms to drop.
+
+## Deploying the Cloud Functions
+
+You can deploy the function like so with the gcloud cli.
+```
+gcloud beta functions deploy process-pypi-query --gen2 --region=us-central1 --runtime=python310 --source=server --entry-point=process_pypi_query --trigger-http --memory=2048
+```
+You will need to modify the variable ``gcf_url`` to the URL of your cloud function, though.
