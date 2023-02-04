@@ -3,7 +3,8 @@
 -- We need to pull info from the table manually in that case.
 SELECT
     CASE
-        WHEN REGEXP_CONTAINS (file.filename, r'^.*\.(tar.gz|zip|whl)')
+        -- We need to escape the last dollar sign at the end, by using $$
+        WHEN REGEXP_CONTAINS (file.filename, r'^.*\.(tar.gz|zip|whl)$$')
         THEN file.filename
         ELSE CONCAT(file.filename, ' ', file.version, ' ', file.type)
     END
@@ -11,8 +12,8 @@ SELECT
 
 
 FROM `bigquery-public-data.pypi.file_downloads`
-WHERE project = '$projectname'
+WHERE project = @projectname
 AND DATE(timestamp)
-    BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+    BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL $interval)
     AND CURRENT_DATE()
 GROUP BY file

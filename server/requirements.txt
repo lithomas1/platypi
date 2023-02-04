@@ -2,4 +2,4 @@ numpy
 pandas
 google-cloud-bigquery
 db-dtypes # for GBQ
-tornado
+functions-framework==3.* # For cloud functions

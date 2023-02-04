@@ -7,30 +7,43 @@ from bokeh.models import ColumnDataSource, Div
 from bokeh.plotting import figure
 from bokeh.resources import CDN
 from js import JSON, Bokeh
-from stats import (plot_platforms, plot_top_downloaded_files, plot_versions,
+from .stats import (plot_platforms, plot_top_downloaded_files, plot_versions,
                    plot_wheel_coverage)
-from util import get_tags, make_request, parse_filename
+from .util import get_tags, make_request, parse_filename
 from packaging.version import Version
+
+from pyscript import Element
 
 import asyncio
 
+valid_intervals = {"1-Day", "2-Week", "1-Month", "6-Month"}
 
 async def plot_package_info(*args, **kwargs):
     packagename = Element("packagename").element.value
+    interval = Element("interval").element.value
+    if interval not in valid_intervals:
+        display("Error: Interval is invalid", target="charts")
+        return
     n = 10  # TODO: Let user configure?
     # Loading screen
     loading_spinner_div = """
-    <div class="spinner-border" role="status">
-        <span class="sr-only">Waiting for PyPI GBQ Dataset...</span>
+    <div id="spinner" class="spinner-border" role="status">
+        <!-- TODO: Update the accessibility text too -->
+        <span class="visually-hidden">Waiting for PyPI GBQ Dataset...</span>
     </div>
     <div id="loading-text">Waiting for PyPI GBQ Dataset...</div>
     """
     charts_elem = Element("charts")
+
+    # Clear any errrors that may have occurred
+    charts_elem.clear()
+    charts_elem.element.innerHTML = ""
+
     charts_elem.add_class("d-flex")
     charts_elem.add_class("flex-column")
     charts_elem.add_class("align-items-center")
-    Element("charts").write(loading_spinner_div)
-    df = await make_request("package_info", package_name=packagename)
+    Element("charts").element.innerHTML = loading_spinner_div
+    df = await make_request("package_info", package_name=packagename, interval=interval)
     Element("loading-text").write("Analyzing data")
     df = df.sort_values("download_counts", ascending=False, ignore_index=True)
     df[["name", "version", "build_number", "tags", "ftype"]] = df["file"].apply(
@@ -45,18 +58,20 @@ async def plot_package_info(*args, **kwargs):
     p = layout(
         column(
             Div(text="<h4>Global stats</h4>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
-            row([p1, p2]),
-            row(p3, p4),
+            row([p1, p2], sizing_mode="stretch_width"),
+            row([p3, p4], sizing_mode="stretch_width"),
             Div(text="<h4>Version specific stats</h4>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
             Div(text="")
         ),
         sizing_mode="scale_both",
     )
     p_json = json.dumps(json_item(p, "charts"))
-    Element("charts").clear()
+    Element("charts").element.innerHTML = ""
     Bokeh.embed.embed_item(JSON.parse(p_json))
 
     versions = df["version"].astype(str).unique()
+    versions.sort() # It is inplace, but in ascending order
+    versions = versions[::-1] # Let's flip it
     dropdown = Element("versionDropDownMenu")
     dropdown_option_template = Element("versionDropDownTemplate").select("option", from_content=True)
     for version in versions:
@@ -81,8 +96,8 @@ def plot_version_package_info(*args, **kwargs):
     p = layout(
         column(
             Div(text=f"<h5>Stats for version {version}</h5>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
-            row([p1, p2]),
-            row(p3),
+            row([p1, p2], sizing_mode="stretch_width"),
+            row(p3, sizing_mode="stretch_width"),
         ),
         sizing_mode="scale_both",
     )

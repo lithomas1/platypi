@@ -27,7 +27,7 @@ legacy_tag_aliases = {
 
 
 async def make_request(request_type, **kwargs):
-    url = f"https://platypi.herokuapp.com/query?query_type={request_type}"
+    url = f"https://process-pypi-query-74hlg3dilq-uc.a.run.app/query?query_type={request_type}"
     for key, value in kwargs.items():
         url += f"&{key}={value}"
     req = await pyfetch(url)

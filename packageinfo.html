@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Platypi: PyPI Download Analysis</title>
-    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
-    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.2.min.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
-    <py-env>
-        - numpy
-        - pandas
-        - bokeh
-        - packaging
-        - paths:
-            - ./pyscript/util.py
-            - ./pyscript/stats.py
-    </py-env>
 </head>
 <body>
     <!-- Navbar placeholder div and script -->
     <div id="navbar"></div>
+    <py-config>
+        packages = ["numpy", "pandas", "bokeh", "packaging"]
+
+        [[fetch]]
+        files = ["web/stats.py", "web/util.py", "web/__init__.py", "web/callbacks.py"]
+    </py-config>
     <script>
         $(function(){
             $("#navbar").load("html/nav.html");
@@ -35,19 +32,28 @@
     <div class="m-2">
         <input type="text" id="packagename" class="form-control" style="text-align: center"/>
     </div>
+    <select class="form-select" aria-label="Select an interval" id="interval">
+        <option selected value="1-Day">1 Day</option>
+        <option value="2-Week">2 Weeks</option>
+        <option value="1-Month">1 Month</option>
+        <option value="6-Month">6 Months</option>
+    </select>
     <div class="m-2">
-        <button id="submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_package_info">Query</button>
+        <button id="submit-button" type="submit" class="btn btn-primary" py-onClick="plot_package_info()">Query</button>
     </div>
     <div id="charts"></div>
     <div id="versionSelector" style="visibility: hidden">
         <select class="form-select" id="versionDropDownMenu" aria-label="Select a version">
             <option selected>Select a version to analyze further:</option>
         </select>
-        <button id="version-submit-button" type="submit" class="btn btn-primary" pys-onClick="plot_version_package_info">Query</button>
+        <button id="version-submit-button" type="submit" class="btn btn-primary" py-onClick="plot_version_package_info()">Query</button>
         <div id="version_charts"></div>
     </div>
     <template id="versionDropDownTemplate">
         <option>Dummy option</option>
     </template>
-    <py-script src="pyscript/callbacks.py"></py-script>
+    <py-script>
+        # Normally would just specify src, but pyscript fetching is kinda broken ATM
+        from web.callbacks import *
+    </py-script>
 </body>
