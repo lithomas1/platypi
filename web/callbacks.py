@@ -104,16 +104,18 @@ def plot_version_package_info(*args, **kwargs):
     p_json = json.dumps(json_item(p, "version_charts"))
     Bokeh.embed.embed_item(JSON.parse(p_json))
 
-def plot_top_packages(*args, **kwargs):
+async def plot_top_packages(*args, **kwargs):
     num_top_packages = int(Element("topn").element.value)
-    df = make_request("packages_today")
+    df = await make_request("packages_today")
     df = df.sort_values("download_counts", ascending=False, ignore_index=True)
     source = ColumnDataSource(
         df.head(num_top_packages)
     )  # Take the top n most downloaded files
     p = figure(
         title=f"Top {num_top_packages} packages",
-        y_range=df.head(num_top_packages)["project"].values,
+        # Reverse because bokeh will plot ascending in descending order
+        # and we are currently already in descending order
+        y_range=df.head(num_top_packages)["project"].values[::-1],
         x_axis_label="Download count",
         y_axis_label="Package name",
     )
