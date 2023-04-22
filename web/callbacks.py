@@ -19,6 +19,12 @@ import asyncio
 valid_intervals = {"1-Day", "2-Week", "1-Month", "6-Month"}
 
 async def plot_package_info(*args, **kwargs):
+
+    # Clear previous plots
+    Element("charts").element.innerHTML = ""
+    Element("version_charts").element.innerHTML = ""
+    Element("versionSelector").element.style.visibility = "hidden"
+
     packagename = Element("packagename").element.value
     interval = Element("interval").element.value
     if interval not in valid_intervals:
@@ -52,10 +58,11 @@ async def plot_package_info(*args, **kwargs):
             Div(text="<h4>Global stats</h4>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
             row([p1, p2], sizing_mode="stretch_width"),
             row([p3, p4], sizing_mode="stretch_width"),
-            Div(text="<h4>Version specific stats</h4>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
-            Div(text="")
+            # Div(text="<h4>Version specific stats</h4>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
+            # Div(text="")
         ),
-        sizing_mode="scale_both",
+        # TODO: Auto-scaling is broken?
+        #sizing_mode="scale_both",
     )
     p_json = json.dumps(json_item(p, "charts"))
     Element("charts").element.innerHTML = ""
@@ -88,10 +95,10 @@ def plot_version_package_info(*args, **kwargs):
     p = layout(
         column(
             Div(text=f"<h5>Stats for version {version}</h5>", css_classes=["d-flex", "align-items-center", "justify-content-center"]),
-            row([p1, p2], sizing_mode="stretch_width"),
-            row(p3, sizing_mode="stretch_width"),
+            row([p1, p2]), #, sizing_mode="stretch_width"),
+            row(p3)#, sizing_mode="stretch_width"),
         ),
-        sizing_mode="scale_both",
+        #sizing_mode="scale_both",
     )
     p_json = json.dumps(json_item(p, "version_charts"))
     Bokeh.embed.embed_item(JSON.parse(p_json))

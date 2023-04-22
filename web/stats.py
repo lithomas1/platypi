@@ -1,13 +1,13 @@
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import Category20c
-from bokeh.plotting import Figure, figure
+from bokeh.plotting import figure
 from bokeh.transform import cumsum
 from pandas import DataFrame
 from .util import calculate_pie_chart_angle
 
 category20c = Category20c[20]
 
-def plot_top_downloaded_files(data: DataFrame, packagename: str, n: int) -> Figure:
+def plot_top_downloaded_files(data: DataFrame, packagename: str, n: int) -> figure:
     topn_df = data.head(n)[["file", "download_counts"]]
     source = ColumnDataSource(topn_df)
     # Reverse the data. Bokeh plots ascending in descending order
@@ -24,7 +24,7 @@ def plot_top_downloaded_files(data: DataFrame, packagename: str, n: int) -> Figu
     return p
 
 
-def plot_wheel_coverage(data: DataFrame, packagename: str) -> Figure:
+def plot_wheel_coverage(data: DataFrame, packagename: str) -> figure:
     grouped_stats = data.groupby("ftype")
     ftype_counts = grouped_stats["download_counts"].sum().reset_index()
     # Manually calculate pie chart angles since bokeh doesn't do that
@@ -46,7 +46,7 @@ def plot_wheel_coverage(data: DataFrame, packagename: str) -> Figure:
     return p
 
 
-def plot_platforms(data: DataFrame, packagename: str, n: int) -> Figure:
+def plot_platforms(data: DataFrame, packagename: str, n: int) -> figure:
     wheel_info = data[data["ftype"] == "wheel"]
     plat_download_counts = wheel_info.groupby("platformtag")["download_counts"].sum()
     plat_download_counts = plat_download_counts / plat_download_counts.sum()
@@ -67,7 +67,7 @@ def plot_platforms(data: DataFrame, packagename: str, n: int) -> Figure:
     return p
 
 
-def plot_versions(data: DataFrame, packagename: str, n: int) -> Figure:
+def plot_versions(data: DataFrame, packagename: str, n: int) -> figure:
     data["version"] = data["version"].astype(str)
     grouped_version_stats = data.groupby("version")
     grouped_version_stats = (
